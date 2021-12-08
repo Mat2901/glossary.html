@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glossário</title>
+</head>
+<body>
+    <h1>Glossário </h1>
+    <dl>
+        <dt><strong>Introdução</strong></dt>
+        <dd>Gostaria de aprender a fazer um Glossário
+            simples? Aprenda já com a <a href="http://rocketseat.com.br/">rocketseat!</a>
+        </dd>
+        <dt><strong>Definição</strong></dt>
+        <dd>Lorem ipsum dolor sit amet consectetur adipisicing elit. At, accusantium.</dd>
+        <dt><strong>Nossa visão</strong></dt>
+        <dd>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Fuga, numquam? Recusandae, accusamus sapiente impedit corporis ratione dolorem officia molestias sequi?
+        </dd><dt><strong>Conclusão</strong></dt>
+        <dd>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur quas voluptate soluta quis ex quo quia error numquam totam, magnam nobis, velit minus rerum officia! Aliquam voluptatum vitae praesentium doloribus!</dd>
+    </dl>
+</body>
+</html>
