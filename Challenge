@@ -1,24 +1,695 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glossário</title>
+    <title>Matheus Assis - Aula de Violão</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tone.js for Metronome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    
+    <!-- ml5.js for Tuner -->
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide-react@0.378.0/dist/umd/lucide.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #3b82f6; /* blue-500 */
+            --background-color: #111827; /* gray-900 */
+            --card-color: #1f2937; /* gray-800 */
+            --text-color: #f9fafb; /* gray-50 */
+            --muted-text-color: #9ca3af; /* gray-400 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .tool-card {
+            background-color: var(--card-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        .fretboard-grid {
+            display: grid;
+            grid-template-columns: 40px repeat(13, 1fr);
+            gap: 2px;
+        }
+        .fret {
+            position: relative;
+            background-color: #4a3c2b;
+            height: 30px;
+        }
+        .string {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #d1d5db;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .fret-marker {
+            position: absolute;
+            left: -1px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background-color: #a1a1aa;
+            z-index: 2;
+        }
+        .nut {
+            background-color: #e5e7eb;
+            width: 8px !important;
+        }
+        .note-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            z-index: 3;
+            transition: transform 0.1s ease;
+        }
+        .note-dot:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        .inlay-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background-color: #88755f;
+            border-radius: 50%;
+        }
+        .chord-diagram {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: 20px repeat(5, 1fr);
+            gap: 2px;
+            width: 150px;
+            background-color: var(--card-color);
+            border: 2px solid var(--muted-text-color);
+            padding: 5px;
+            border-radius: 5px;
+            margin: 0 auto;
+        }
+        .chord-fret {
+            border-top: 1px solid var(--muted-text-color);
+            position: relative;
+        }
+        .chord-string {
+            height: 100%;
+            width: 1px;
+            background-color: var(--muted-text-color);
+            margin: 0 auto;
+        }
+        .finger-dot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .open-string, .muted-string {
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
 </head>
-<body>
-    <h1>Glossário </h1>
-    <dl>
-        <dt><strong>Introdução</strong></dt>
-        <dd>Gostaria de aprender a fazer um Glossário
-            simples? Aprenda já com a <a href="http://rocketseat.com.br/">rocketseat!</a>
-        </dd>
-        <dt><strong>Definição</strong></dt>
-        <dd>Lorem ipsum dolor sit amet consectetur adipisicing elit. At, accusantium.</dd>
-        <dt><strong>Nossa visão</strong></dt>
-        <dd>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Fuga, numquam? Recusandae, accusamus sapiente impedit corporis ratione dolorem officia molestias sequi?
-        </dd><dt><strong>Conclusão</strong></dt>
-        <dd>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aspernatur quas voluptate soluta quis ex quo quia error numquam totam, magnam nobis, velit minus rerum officia! Aliquam voluptatum vitae praesentium doloribus!</dd>
-    </dl>
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex items-center justify-center space-x-4 mb-8">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M11.99 20.88a5.88 5.88 0 0 0 5.88-5.88v-4.25a4.25 4.25 0 1 0-8.5 0v7.4a2.63 2.63 0 1 0 5.25 0V7.5a1 1 0 1 0-2 0v6.88a5.88 5.88 0 0 0-5.88 5.88c0 3.24 2.64 5.88 5.88 5.88s5.88-2.64 5.88-5.88v-4.25a4.25 4.25 0 1 0-8.5 0v7.4a2.63 2.63 0 1 0 5.25 0V7.5a1 1 0 1 0-2 0"/></svg>
+            <h1 class="text-2xl sm:text-3xl font-bold text-center tracking-tight">Matheus Assis - Aula de Violão</h1>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="flex justify-center space-x-2 sm:space-x-4 md:space-x-8 mb-8 border-b border-gray-700">
+            <button class="nav-link active py-3 px-2 sm:px-4 font-semibold" data-tool="metronome">Metrônomo</button>
+            <button class="nav-link py-3 px-2 sm:px-4 font-semibold" data-tool="tuner">Afinador</button>
+            <button class="nav-link py-3 px-2 sm:px-4 font-semibold" data-tool="fretboard">Braço do Violão</button>
+            <button class="nav-link py-3 px-2 sm:px-4 font-semibold" data-tool="chords">Dicionário de Acordes</button>
+        </nav>
+
+        <main>
+            <!-- Metronome Tool -->
+            <div id="metronome" class="tool-content tool-card">
+                <h2 class="text-xl font-bold text-center mb-6">Metrônomo</h2>
+                <div class="flex flex-col items-center space-y-6">
+                    <div id="metronome-visual" class="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center transition-all duration-100">
+                         <div class="w-20 h-20 bg-gray-600 rounded-full"></div>
+                    </div>
+                    <div class="text-6xl font-bold tracking-tighter" id="bpm-display">120</div>
+                    <div class="w-full max-w-sm">
+                        <input type="range" id="bpm-slider" min="40" max="240" value="120" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="start-stop-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Iniciar</button>
+                        <button id="tap-tempo-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-colors">Tap</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tuner Tool -->
+            <div id="tuner" class="tool-content tool-card hidden">
+                <h2 class="text-xl font-bold text-center mb-6">Afinador de Violão</h2>
+                <div class="flex flex-col items-center space-y-4">
+                    <div id="tuner-status" class="text-gray-400 h-6">Clique em "Ativar Afinador" para começar</div>
+                    <div class="w-full max-w-xs h-24 bg-gray-900 rounded-lg flex items-center justify-center p-4">
+                        <div class="relative w-full h-2 bg-gray-700 rounded-full">
+                            <div id="tuner-indicator" class="absolute top-0 h-full w-1 bg-blue-500 rounded-full transition-all duration-100" style="left: 50%;"></div>
+                            <div class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 h-6 w-1 bg-white opacity-50"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-end space-x-2 h-24">
+                        <div id="note-name" class="text-8xl font-bold">--</div>
+                        <div id="note-octave" class="text-3xl font-semibold text-gray-400 mb-2"></div>
+                    </div>
+                    <div id="frequency-display" class="text-lg text-gray-400 h-6">Frequência: --- Hz</div>
+                    <div class="mt-4">
+                        <button id="start-tuner-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Ativar Afinador</button>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-700 w-full max-w-md text-center">
+                        <h3 class="font-semibold mb-2">Afinação Padrão (EADGBe)</h3>
+                        <div id="standard-tuning-notes" class="flex justify-center space-x-2">
+                             <!-- Tuning buttons will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fretboard Tool -->
+            <div id="fretboard" class="tool-content tool-card hidden overflow-x-auto">
+                <h2 class="text-xl font-bold text-center mb-6">Braço do Violão Interativo</h2>
+                <div id="interactive-fretboard" class="min-w-[800px]">
+                    <!-- Fretboard will be generated here -->
+                </div>
+                 <div id="fretboard-note-display" class="text-center mt-4 text-2xl font-bold h-8"></div>
+            </div>
+
+            <!-- Chords Tool -->
+            <div id="chords" class="tool-content tool-card hidden">
+                <h2 class="text-xl font-bold text-center mb-6">Dicionário de Acordes</h2>
+                <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-8">
+                    <div class="flex flex-col items-center space-y-4">
+                        <h3 class="font-semibold">Nota Raiz</h3>
+                        <div id="chord-root-select" class="grid grid-cols-4 gap-2"></div>
+                        <h3 class="font-semibold mt-4">Tipo de Acorde</h3>
+                        <div id="chord-type-select" class="grid grid-cols-3 gap-2"></div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                         <h3 id="chord-display-name" class="text-3xl font-bold mb-4 h-9"></h3>
+                        <div id="chord-diagram-container">
+                            <!-- Chord diagram will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="text-center text-gray-500 mt-12 pb-4">
+            <p>&copy; 2025 Matheus Assis. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const toolContents = document.querySelectorAll('.tool-content');
+
+            // --- Navigation Logic ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    const tool = link.dataset.tool;
+                    
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    toolContents.forEach(content => {
+                        if (content.id === tool) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // --- Metronome Logic ---
+            const bpmDisplay = document.getElementById('bpm-display');
+            const bpmSlider = document.getElementById('bpm-slider');
+            const startStopBtn = document.getElementById('start-stop-btn');
+            const tapTempoBtn = document.getElementById('tap-tempo-btn');
+            const metronomeVisual = document.getElementById('metronome-visual');
+
+            let bpm = 120;
+            let isPlaying = false;
+            let metronomeInterval = null;
+            let lastTap = 0;
+            let tapTimes = [];
+
+            const synth = new Tone.Synth({
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.001, decay: 0.1, sustain: 0.01, release: 0.01 }
+            }).toDestination();
+            
+            function updateBPM(newBPM) {
+                bpm = newBPM;
+                bpmDisplay.textContent = bpm;
+                bpmSlider.value = bpm;
+                if (isPlaying) {
+                    stopMetronome();
+                    startMetronome();
+                }
+            }
+            
+            function visualClick() {
+                metronomeVisual.style.transform = 'scale(1.1)';
+                metronomeVisual.style.backgroundColor = 'var(--primary-color)';
+                setTimeout(() => {
+                    metronomeVisual.style.transform = 'scale(1)';
+                    metronomeVisual.style.backgroundColor = '#374151'; // gray-700
+                }, 100);
+            }
+
+            function startMetronome() {
+                isPlaying = true;
+                startStopBtn.textContent = 'Parar';
+                startStopBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                startStopBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+                
+                const interval = (60 / bpm) * 1000;
+                metronomeInterval = setInterval(() => {
+                    synth.triggerAttackRelease('C5', '8n');
+                    visualClick();
+                }, interval);
+                 // Initial click
+                synth.triggerAttackRelease('C5', '8n');
+                visualClick();
+            }
+
+            function stopMetronome() {
+                isPlaying = false;
+                startStopBtn.textContent = 'Iniciar';
+                startStopBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                startStopBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                clearInterval(metronomeInterval);
+            }
+            
+            startStopBtn.addEventListener('click', () => {
+                if(Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                isPlaying ? stopMetronome() : startMetronome();
+            });
+
+            bpmSlider.addEventListener('input', (e) => {
+                updateBPM(parseInt(e.target.value));
+            });
+            
+            tapTempoBtn.addEventListener('click', () => {
+                const now = performance.now();
+                if (lastTap > 0 && (now - lastTap) < 2000) { // 2 second timeout
+                    tapTimes.push(now - lastTap);
+                    if (tapTimes.length > 5) tapTimes.shift(); // Keep last 5 taps
+                    
+                    const average = tapTimes.reduce((a, b) => a + b) / tapTimes.length;
+                    const newBpm = Math.round(60000 / average);
+                    if(newBpm >= 40 && newBpm <= 240) {
+                        updateBPM(newBpm);
+                    }
+                } else {
+                    tapTimes = []; // Reset if too much time has passed
+                }
+                lastTap = now;
+            });
+
+
+            // --- Tuner Logic ---
+            const startTunerBtn = document.getElementById('start-tuner-btn');
+            const tunerStatus = document.getElementById('tuner-status');
+            const noteNameEl = document.getElementById('note-name');
+            const noteOctaveEl = document.getElementById('note-octave');
+            const frequencyDisplay = document.getElementById('frequency-display');
+            const tunerIndicator = document.getElementById('tuner-indicator');
+            const standardTuningNotesContainer = document.getElementById('standard-tuning-notes');
+            
+            let audioContext;
+            let model;
+            let mic;
+            let tunerActive = false;
+
+            const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            const standardTuning = [
+                { note: 'E', octave: 4, freq: 329.63 },
+                { note: 'B', octave: 3, freq: 246.94 },
+                { note: 'G', octave: 3, freq: 196.00 },
+                { note: 'D', octave: 3, freq: 146.83 },
+                { note: 'A', octave: 2, freq: 110.00 },
+                { note: 'E', octave: 2, freq: 82.41 }
+            ];
+
+            function createTuningButtons() {
+                standardTuning.forEach(s => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-10 h-10 rounded-full bg-gray-700 font-bold text-lg flex items-center justify-center hover:bg-gray-600 transition-colors';
+                    btn.textContent = s.note;
+                    btn.onclick = () => playReferenceTone(s.freq);
+                    standardTuningNotesContainer.appendChild(btn);
+                });
+            }
+
+            function playReferenceTone(freq) {
+                if(Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                const osc = new Tone.Oscillator(freq, "sine").toDestination();
+                osc.start().stop("+0.5");
+            }
+
+            async function setupTuner() {
+                tunerStatus.textContent = "Carregando modelo...";
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    // FIX: Use the full URL for the model to avoid loading errors.
+                    model = await ml5.pitchDetection('https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/', audioContext, navigator.mediaDevices.getUserMedia({ audio: true }));
+                    mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    tunerActive = true;
+                    startTunerBtn.textContent = "Desativar Afinador";
+                    startTunerBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    startTunerBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+                    tunerStatus.textContent = "Ouvindo...";
+                    getPitch();
+                } catch (error) {
+                    console.error(error);
+                    tunerStatus.textContent = "Erro ao acessar o microfone. Verifique as permissões.";
+                    // FIX: Removed alert() as it may not work well in all environments.
+                }
+            }
+
+            function stopTuner() {
+                if (mic) {
+                    mic.getTracks().forEach(track => track.stop());
+                }
+                tunerActive = false;
+                startTunerBtn.textContent = "Ativar Afinador";
+                startTunerBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                startTunerBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+                tunerStatus.textContent = "Afinador desativado.";
+                noteNameEl.textContent = '--';
+                noteOctaveEl.textContent = '';
+                frequencyDisplay.textContent = 'Frequência: --- Hz';
+                tunerIndicator.style.left = '50%';
+            }
+
+            function getPitch() {
+                if (!tunerActive) return;
+                model.getPitch((err, frequency) => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    if (frequency) {
+                        updateTunerUI(frequency);
+                    }
+                    requestAnimationFrame(getPitch);
+                });
+            }
+
+            function freqToNote(freq) {
+                const midiNum = 69 + 12 * Math.log2(freq / 440.0);
+                const noteIndex = Math.round(midiNum) % 12;
+                const octave = Math.floor(Math.round(midiNum) / 12) - 1;
+                return { note: notes[noteIndex], octave: octave, midi: midiNum };
+            }
+
+            function getCents(freq, midiNum) {
+                const idealFreq = 440 * Math.pow(2, (Math.round(midiNum) - 69) / 12);
+                return 1200 * Math.log2(freq / idealFreq);
+            }
+
+            function updateTunerUI(frequency) {
+                const { note, octave, midi } = freqToNote(frequency);
+                const cents = getCents(frequency, midi);
+                
+                noteNameEl.textContent = note;
+                noteOctaveEl.textContent = octave;
+                frequencyDisplay.textContent = `Frequência: ${frequency.toFixed(2)} Hz`;
+
+                // Cents are from -50 to +50. Map this to a percentage for the indicator.
+                const indicatorPos = 50 + cents; // 0 to 100
+                tunerIndicator.style.left = `${Math.max(0, Math.min(100, indicatorPos))}%`;
+                
+                if (Math.abs(cents) < 5) {
+                    tunerIndicator.style.backgroundColor = '#10b981'; // emerald-500
+                } else {
+                    tunerIndicator.style.backgroundColor = 'var(--primary-color)';
+                }
+            }
+            
+            startTunerBtn.addEventListener('click', () => {
+                tunerActive ? stopTuner() : setupTuner();
+            });
+
+            createTuningButtons();
+
+            // --- Interactive Fretboard Logic ---
+            const fretboardContainer = document.getElementById('interactive-fretboard');
+            const fretboardNoteDisplay = document.getElementById('fretboard-note-display');
+            const stringNotes = [
+                ['E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E'], // High E
+                ['B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'], // B
+                ['G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G'], // G
+                ['D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D'], // D
+                ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A'], // A
+                ['E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E']  // Low E
+            ];
+            const inlayPositions = { 3: [2], 5: [2], 7: [2], 9: [2], 12: [1, 3] };
+            
+            function createFretboard() {
+                const grid = document.createElement('div');
+                grid.className = 'fretboard-grid';
+
+                // Headers
+                grid.appendChild(document.createElement('div')); // empty corner
+                for(let i=0; i<13; i++) {
+                    const header = document.createElement('div');
+                    header.className = 'text-center font-bold text-gray-400';
+                    header.textContent = i === 0 ? 'Nut' : i;
+                    grid.appendChild(header);
+                }
+
+                stringNotes.forEach((string, stringIndex) => {
+                    const stringName = document.createElement('div');
+                    stringName.className = 'flex items-center justify-center font-bold text-lg';
+                    stringName.textContent = string[0];
+                    grid.appendChild(stringName);
+                    
+                    for (let fret = 0; fret < 13; fret++) {
+                        const fretEl = document.createElement('div');
+                        fretEl.className = 'fret';
+                        
+                        const stringEl = document.createElement('div');
+                        stringEl.className = 'string';
+                        if(stringIndex === 0 || stringIndex === 5) stringEl.style.height = '3px';
+                        if(stringIndex === 1 || stringIndex === 4) stringEl.style.height = '2.5px';
+                        fretEl.appendChild(stringEl);
+                        
+                        if (fret > 0) {
+                            const fretMarker = document.createElement('div');
+                            fretMarker.className = 'fret-marker';
+                            fretEl.appendChild(fretMarker);
+                        } else {
+                            fretEl.classList.add('nut');
+                        }
+
+                        // Inlays
+                        if (inlayPositions[fret] && inlayPositions[fret].includes(stringIndex)) {
+                             const inlay = document.createElement('div');
+                             inlay.className = 'inlay-dot';
+                             fretEl.appendChild(inlay);
+                        }
+
+                        const noteDot = document.createElement('div');
+                        noteDot.className = 'note-dot opacity-0 hover:opacity-100';
+                        noteDot.textContent = string[fret];
+                        noteDot.addEventListener('click', () => {
+                             fretboardNoteDisplay.textContent = `Nota: ${string[fret]}`;
+                        });
+                        fretEl.appendChild(noteDot);
+                        
+                        grid.appendChild(fretEl);
+                    }
+                });
+
+                fretboardContainer.appendChild(grid);
+            }
+
+            createFretboard();
+
+
+            // --- Chord Dictionary Logic ---
+            const chordRootSelect = document.getElementById('chord-root-select');
+            const chordTypeSelect = document.getElementById('chord-type-select');
+            const chordDisplayName = document.getElementById('chord-display-name');
+            const chordDiagramContainer = document.getElementById('chord-diagram-container');
+
+            const chordRoots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            const chordTypes = {
+                'Maior': '', 'Menor': 'm', '7': '7', 'm7': 'm7', 'Maj7': 'M7',
+                'sus2': 'sus2', 'sus4': 'sus4', 'dim': 'dim', 'aug': 'aug'
+            };
+            const chordData = {
+                // FIX: Corrected chord voicings for more standard and accurate diagrams.
+                // 'x' = muted, 0 = open string
+                'C':  { '': [ 'x', 3, 2, 0, 1, 0 ], 'm': [ 'x', 3, 5, 5, 4, 3 ], '7': [ 'x', 3, 2, 3, 1, 0 ], 'M7': [ 'x', 3, 2, 0, 0, 0 ] },
+                'C#': { '': [ 'x', 4, 6, 6, 6, 4 ], 'm': [ 'x', 4, 6, 6, 5, 4 ] },
+                'D':  { '': [ 'x', 'x', 0, 2, 3, 2 ], 'm': [ 'x', 'x', 0, 2, 3, 1 ], '7': [ 'x', 'x', 0, 2, 1, 2 ], 'M7': [ 'x', 'x', 0, 2, 2, 2 ] },
+                'D#': { '': [ 'x', 6, 8, 8, 8, 6 ], 'm': [ 'x', 6, 8, 8, 7, 6 ] },
+                'E':  { '': [ 0, 2, 2, 1, 0, 0 ], 'm': [ 0, 2, 2, 0, 0, 0 ], '7': [ 0, 2, 0, 1, 0, 0 ], 'M7': [ 0, 2, 1, 1, 0, 0 ] },
+                'F':  { '': [ 1, 3, 3, 2, 1, 1 ], 'm': [ 1, 3, 3, 1, 1, 1 ], '7': [ 1, 3, 1, 2, 1, 1 ], 'M7': [ 1, 3, 2, 2, 1, 1 ] },
+                'F#': { '': [ 2, 4, 4, 3, 2, 2 ], 'm': [ 2, 4, 4, 2, 2, 2 ] },
+                'G':  { '': [ 3, 2, 0, 0, 0, 3 ], 'm': [ 3, 5, 5, 3, 3, 3 ], '7': [ 3, 2, 0, 0, 0, 1 ], 'M7': [ 3, 2, 0, 0, 0, 2 ] },
+                'G#': { '': [ 4, 6, 6, 5, 4, 4 ], 'm': [ 4, 6, 6, 4, 4, 4 ] },
+                'A':  { '': [ 'x', 0, 2, 2, 2, 0 ], 'm': [ 'x', 0, 2, 2, 1, 0 ], '7': [ 'x', 0, 2, 0, 2, 0 ], 'M7': [ 'x', 0, 2, 1, 2, 0 ] },
+                'A#': { '': [ 'x', 1, 3, 3, 3, 1 ], 'm': [ 'x', 1, 3, 3, 2, 1 ] },
+                'B':  { '': [ 'x', 2, 4, 4, 4, 2 ], 'm': [ 'x', 2, 4, 4, 3, 2 ], '7': [ 'x', 2, 1, 2, 0, 2 ], 'M7': [ 'x', 2, 1, 1, 0, 2 ] }
+            };
+            
+            let selectedRoot = 'C';
+            let selectedType = '';
+
+            function createChordButtons() {
+                chordRoots.forEach(root => {
+                    const btn = document.createElement('button');
+                    btn.className = 'chord-btn root-btn w-12 h-10 rounded-md bg-gray-700 font-bold hover:bg-gray-600';
+                    if (root === 'C') btn.classList.add('active-chord-btn');
+                    btn.textContent = root;
+                    btn.dataset.root = root;
+                    btn.addEventListener('click', () => {
+                        selectedRoot = root;
+                        document.querySelectorAll('.root-btn').forEach(b => b.classList.remove('active-chord-btn'));
+                        btn.classList.add('active-chord-btn');
+                        renderChord();
+                    });
+                    chordRootSelect.appendChild(btn);
+                });
+
+                Object.entries(chordTypes).forEach(([name, type]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'chord-btn type-btn p-2 rounded-md bg-gray-700 font-semibold hover:bg-gray-600';
+                    if (type === '') btn.classList.add('active-chord-btn');
+                    btn.textContent = name;
+                    btn.dataset.type = type;
+                    btn.addEventListener('click', () => {
+                        selectedType = type;
+                        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active-chord-btn'));
+                        btn.classList.add('active-chord-btn');
+                        renderChord();
+                    });
+                    chordTypeSelect.appendChild(btn);
+                });
+                
+                const style = document.createElement('style');
+                style.innerHTML = `.active-chord-btn { background-color: var(--primary-color) !important; color: white; }`;
+                document.head.appendChild(style);
+            }
+
+            function renderChord() {
+                const chord = chordData[selectedRoot]?.[selectedType];
+                const typeName = Object.keys(chordTypes).find(key => chordTypes[key] === selectedType);
+                chordDisplayName.textContent = `${selectedRoot}${typeName === 'Maior' ? '' : ` ${typeName}`}`;
+
+                chordDiagramContainer.innerHTML = '';
+                if (!chord) {
+                    chordDiagramContainer.textContent = 'Acorde não encontrado.';
+                    return;
+                }
+                
+                const diagram = document.createElement('div');
+                diagram.className = 'chord-diagram';
+
+                // String status (Open/Muted)
+                for (let i = 0; i < 6; i++) {
+                    const status = document.createElement('div');
+                    if (chord[i] === 'x' || chord[i] === 0) {
+                        status.textContent = chord[i] === 'x' ? 'x' : 'o';
+                        status.className = chord[i] === 'x' ? 'muted-string' : 'open-string';
+                    }
+                    diagram.appendChild(status);
+                }
+
+                // Frets and strings
+                for (let fret = 1; fret <= 5; fret++) {
+                    for (let string = 0; string < 6; string++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'chord-fret';
+                        
+                        const stringLine = document.createElement('div');
+                        stringLine.className = 'chord-string';
+                        cell.appendChild(stringLine);
+
+                        if (chord[string] === fret) {
+                            const dot = document.createElement('div');
+                            dot.className = 'finger-dot';
+                            cell.appendChild(dot);
+                        }
+                        diagram.appendChild(cell);
+                    }
+                }
+                
+                chordDiagramContainer.appendChild(diagram);
+            }
+            
+            createChordButtons();
+            renderChord();
+
+            // Add icons after DOM load
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
+
